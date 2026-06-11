@@ -8,7 +8,7 @@
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,test}/**/*.ts\"",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "migration:generate": "typeorm-ts-node-commonjs migration:generate",
     "migration:run": "typeorm-ts-node-commonjs migration:run",

@@ -84,7 +84,7 @@ export class ServersService {
           ramUsage: metrics.ramUsageMb,
           uptime: metrics.uptimeSeconds,
         });
-      } catch {}
+      } catch { /* ignore */ }
     }, 5000);
   }
 
@@ -535,7 +535,7 @@ export class ServersService {
           message: logData.message,
         });
         this.appGateway.sendServerLog(id, logEntry);
-      } catch {}
+      } catch { /* ignore */ }
     });
 
     adapter.on('status', async (status: string) => {

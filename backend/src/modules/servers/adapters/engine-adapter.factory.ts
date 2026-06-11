@@ -8,12 +8,16 @@ export class EngineAdapterFactory {
     switch (engineType) {
       case EngineType.GODOT:
         return new GodotAdapter();
-      case EngineType.UNREAL:
+      case EngineType.UNREAL: {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const { UnrealAdapter } = require('./unreal/unreal-adapter');
         return new UnrealAdapter();
-      case EngineType.UNITY:
+      }
+      case EngineType.UNITY: {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const { UnityAdapter } = require('./unity/unity-adapter');
         return new UnityAdapter();
+      }
       default:
         throw new Error(`Unsupported engine type: ${engineType}`);
     }
