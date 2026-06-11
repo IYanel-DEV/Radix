@@ -105,7 +105,7 @@ export class SystemMetricsService {
           usagePercent: total > 0 ? parseFloat(((used / total) * 100).toFixed(2)) : 0,
         };
       }
-    } catch {}
+    } catch { /* ignore */ }
     return { totalGb: 0, usedGb: 0, freeGb: 0, usagePercent: 0 };
   }
 
@@ -133,7 +133,7 @@ export class SystemMetricsService {
           this.previousRx[name] = stats.rx;
           this.previousTx[name] = stats.tx;
         }
-      } catch {}
+      } catch { /* ignore */ }
     }
 
     this.lastNetworkSample = now;
@@ -152,7 +152,7 @@ export class SystemMetricsService {
           return { rx: parseInt(data.ReceivedBytes || '0', 10), tx: parseInt(data.SentBytes || '0', 10) };
         }
       }
-    } catch {}
+    } catch { /* ignore */ }
     return null;
   }
 
@@ -175,7 +175,7 @@ export class SystemMetricsService {
         const data = JSON.parse(result);
         return { total: parseInt(data.Count || '0', 10), running: parseInt(data.Count || '0', 10) };
       }
-    } catch {}
+    } catch { /* ignore */ }
     return { total: 0, running: 0 };
   }
 }

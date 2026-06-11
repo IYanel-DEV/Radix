@@ -100,7 +100,7 @@ export abstract class BaseProcessAdapter extends EventEmitter implements EngineA
         } else if (this.process.pid) {
           process.kill(this.process.pid, 'SIGKILL');
         }
-      } catch {}
+      } catch { /* ignore */ }
       this.cleanup();
       this.emit('status', 'stopped');
       resolve();
@@ -197,7 +197,7 @@ export abstract class BaseProcessAdapter extends EventEmitter implements EngineA
             this.ramUsageMb = parseFloat(((data.WorkingSet64 || 0) / 1024 / 1024).toFixed(2));
           }
         }
-      } catch {}
+      } catch { /* ignore */ }
     }, 5000);
   }
 
