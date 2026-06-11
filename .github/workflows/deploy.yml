@@ -110,7 +110,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Validate deployment secrets
+        id: validate
+        run: |
+          MISSING=""
+          for secret in DEPLOY_HOST DEPLOY_USER DEPLOY_SSH_KEY; do
+            if [ -z "${{ secrets[secret] }}" ]; then
+              MISSING="$MISSING $secret"
+            fi
+          done
+          if [ -n "$MISSING" ]; then
+            echo "::error::Missing required secrets:$MISSING"
+            exit 1
+          fi
+          echo "host_ok=true" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve deployment host
+        if: steps.validate.outputs.host_ok == 'true'
+        run: |
+          echo "Resolving DEPLOY_HOST..."
+          nslookup "${{ secrets.DEPLOY_HOST }}" 2>&1 || echo "DNS resolution failed (may be private hostname)"
+          echo "Trying ping -c1..."
+          ping -c1 -W3 "${{ secrets.DEPLOY_HOST }}" 2>&1 || echo "Ping failed (may be firewalled)"
+
       - name: Deploy to production
+        if: steps.validate.outputs.host_ok == 'true'
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.DEPLOY_HOST }}
@@ -119,13 +143,17 @@ jobs:
           script: |
             set -e
 
+            echo "=== Radix Deployment ==="
+            echo "Host: $(hostname)"
+            echo "Date: $(date)"
+
             cd /opt/server-manager
 
-            echo "Pulling latest changes..."
+            echo "[1/6] Pulling latest changes..."
             git pull origin main
 
-            echo "Creating .env from GitHub secrets..."
-            cat > .env << 'EOF'
+            echo "[2/6] Creating .env from GitHub secrets..."
+            cat > .env << 'ENVEOF'
             DB_USERNAME=${{ secrets.DB_USERNAME }}
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             DB_DATABASE=${{ secrets.DB_DATABASE }}
@@ -137,15 +165,19 @@ jobs:
             WS_URL=${{ secrets.WS_URL }}
             GRAFANA_USER=${{ secrets.GRAFANA_USER }}
             GRAFANA_PASSWORD=${{ secrets.GRAFANA_PASSWORD }}
-            EOF
+            ENVEOF
 
-            echo "Pulling latest Docker images..."
+            echo "[3/6] Pulling latest Docker images..."
             docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
 
-            echo "Starting services..."
+            echo "[4/6] Starting services..."
             docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --remove-orphans
 
-            echo "Cleaning up old images..."
+            echo "[5/6] Cleaning up old images..."
             docker image prune -f
 
-            echo "Deployment complete!"
+            echo "[6/6] Health check..."
+            sleep 5
+            curl -sf --max-time 10 http://localhost:3000/api/health 2>/dev/null && echo "Backend health: OK" || echo "Backend health: unreachable (may need more time)"
+
+            echo "=== Deployment complete! ==="
