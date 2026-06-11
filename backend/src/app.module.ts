@@ -13,6 +13,7 @@ import { AdminModule } from './modules/admin/admin.module';
 import { MetricsModule } from './modules/metrics/metrics.module';
 import { LogsModule } from './modules/logs/logs.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
+import { GameBuildsModule } from './modules/game-builds/game-builds.module';
 import { ConfigurationModule } from './modules/configuration/configuration.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
@@ -22,6 +23,7 @@ import { HealthModule } from './modules/health/health.module';
 import { EnginePluginsModule } from './modules/engine-plugins/engine-plugins.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { PluginModule } from './modules/plugin/plugin.module';
+import { GameBaaSModule } from './modules/game-baas/game-baas.module';
 import { SeedService } from './database/seeds/seed.service';
 import { Permission } from './database/entities/permission.entity';
 import { Role } from './database/entities/role.entity';
@@ -45,6 +47,7 @@ import { User } from './database/entities/user.entity';
     MetricsModule,
     LogsModule,
     UploadsModule,
+    GameBuildsModule,
     ConfigurationModule,
     AuditModule,
     NotificationsModule,
@@ -54,6 +57,7 @@ import { User } from './database/entities/user.entity';
     EnginePluginsModule,
     AnalyticsModule,
     PluginModule,
+    GameBaaSModule,
     TypeOrmModule.forFeature([User, Role, Permission]),
   ],
   providers: [SeedService],
