@@ -21,7 +21,7 @@ build/
 data/
 *.db
 *.db-journal
-uploads/
+# uploads/ (runtime data) is covered by data/ above
 
 # IDE
 .vscode/

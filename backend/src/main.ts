@@ -13,7 +13,7 @@ async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
 
-  const port = parseInt(process.env.PORT, 10) || 3001;
+  const port = parseInt(process.env.PORT ?? '', 10) || 3001;
   const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:3000';
 
   app.setGlobalPrefix('api');
@@ -36,7 +36,7 @@ async function bootstrap() {
   app.use(
     rateLimit.default({
       windowMs: 60 * 1000,
-      max: parseInt(process.env.THROTTLE_LIMIT, 10) || 100,
+      max: parseInt(process.env.THROTTLE_LIMIT ?? '', 10) || 100,
     }),
   );
 
