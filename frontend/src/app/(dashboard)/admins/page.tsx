@@ -58,7 +58,7 @@ export default function AdminsPage() {
     } catch {}
   };
 
-  useEffect(() => { fetchRoles(); fetchStaff(); }, []);
+  useEffect(() => { Promise.all([fetchRoles(), fetchStaff()]); }, []);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
