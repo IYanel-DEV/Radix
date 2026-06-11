@@ -2,6 +2,7 @@ import { EventEmitter } from 'events';
 import { ChildProcess, spawn, execSync } from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as os from 'os';
 import { EngineAdapter, EngineType, ProcessStats, ServerMetrics } from './engine-adapter.interface';
 
 export abstract class BaseProcessAdapter extends EventEmitter implements EngineAdapter {
@@ -45,6 +46,12 @@ export abstract class BaseProcessAdapter extends EventEmitter implements EngineA
 
       this.startTime = Date.now();
       this.emit('status', 'starting');
+
+      if (this.process.pid) {
+        try {
+          os.setPriority(this.process.pid, 19);
+        } catch { /* platform may not support setPriority */ }
+      }
 
       this.process.stdout?.on('data', (data: Buffer) => {
         for (const line of data.toString().split('\n').filter(Boolean)) {

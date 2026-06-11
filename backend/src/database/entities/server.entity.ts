@@ -13,6 +13,7 @@ export enum ServerStatus {
   STOPPING = 'stopping',
   CRASHED = 'crashed',
   UPDATING = 'updating',
+  STOPPED_BY_WATCHDOG = 'stopped_by_watchdog',
 }
 
 export enum EngineType {
@@ -85,6 +86,12 @@ export class Server {
 
   @Column({ type: 'boolean', default: false })
   autoRestart: boolean;
+
+  @Column({ type: 'int', default: 0 })
+  maxCpuLimit: number;
+
+  @Column({ type: 'int', default: 0 })
+  maxMemoryLimit: number;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   serverTokenHash: string | null;

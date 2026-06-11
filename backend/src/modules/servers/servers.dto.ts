@@ -161,6 +161,19 @@ export class UpdateServerDto {
   @IsOptional()
   @IsBoolean()
   autoRestart?: boolean;
+
+  @ApiPropertyOptional({ description: 'Max CPU usage percentage (0 = unlimited)' })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(100)
+  maxCpuLimit?: number;
+
+  @ApiPropertyOptional({ description: 'Max RAM allocation in MB (0 = unlimited)' })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  maxMemoryLimit?: number;
 }
 
 export class ServerFilterDto {

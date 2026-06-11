@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import { ChildProcess, spawn, execSync } from 'child_process';
 import * as path from 'path';
+import * as os from 'os';
 import { Logger } from '@nestjs/common';
 import { ServerStatus } from '../../database/entities/server.entity';
 
@@ -54,6 +55,12 @@ export class ServerProcessManager extends EventEmitter {
 
     this.startTime = Date.now();
     this.emit('status', ServerStatus.STARTING);
+
+    if (this.process.pid) {
+      try {
+        os.setPriority(this.process.pid, 19);
+      } catch { /* platform may not support setPriority */ }
+    }
 
     this.process.stdout?.on('data', (data: Buffer) => {
       const lines = data.toString().split('\n').filter((l) => l.length > 0);
