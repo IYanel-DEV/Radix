@@ -100,7 +100,7 @@ export class ServersService {
     const maxCpu = server.maxCpuLimit || 0;
     if (maxMem === 0 && maxCpu === 0) return;
 
-    let violations = this.watchdogViolations.get(serverId) || { memoryCount: 0, cpuCount: 0 };
+    const violations = this.watchdogViolations.get(serverId) || { memoryCount: 0, cpuCount: 0 };
     let triggered = false;
     let reason = '';
 
