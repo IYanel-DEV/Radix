@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Server, ServerStatus } from '../../database/entities/server.entity';
 import { ServerBuild } from '../../database/entities/server-build.entity';
 import { ServerMetric } from '../../database/entities/server-metric.entity';
-import { ServerLog } from '../../database/entities/server-log.entity';
+import { ServerLog, LogLevel } from '../../database/entities/server-log.entity';
 import { ServerConfig } from '../../database/entities/server-config.entity';
 import { Player } from '../../database/entities/player.entity';
 import { Backup, BackupType, BackupStatus } from '../../database/entities/backup.entity';
@@ -28,6 +28,7 @@ export class ServersService {
   private readonly logger = new Logger('ServersService');
   private readonly adapters: Map<string, EngineAdapter> = new Map();
   private readonly serverTokens: Map<string, string> = new Map();
+  private readonly watchdogViolations: Map<string, { memoryCount: number; cpuCount: number }> = new Map();
 
   constructor(
     @InjectRepository(Server)
@@ -68,6 +69,7 @@ export class ServersService {
         const adapter_ = this.adapters.get(serverId);
         if (!adapter_?.isRunning()) {
           clearInterval(interval);
+          this.watchdogViolations.delete(serverId);
           return;
         }
         const metrics = await adapter_.collectMetrics();
@@ -84,8 +86,79 @@ export class ServersService {
           ramUsage: metrics.ramUsageMb,
           uptime: metrics.uptimeSeconds,
         });
+
+        await this.runWatchdogCheck(serverId, metrics.ramUsageMb, metrics.cpuUsage);
       } catch { /* ignore */ }
     }, 5000);
+  }
+
+  private async runWatchdogCheck(serverId: string, ramMb: number, cpuPct: number) {
+    const server = await this.serverRepository.findOne({ where: { id: serverId } });
+    if (!server) return;
+
+    const maxMem = server.maxMemoryLimit || 0;
+    const maxCpu = server.maxCpuLimit || 0;
+    if (maxMem === 0 && maxCpu === 0) return;
+
+    const violations = this.watchdogViolations.get(serverId) || { memoryCount: 0, cpuCount: 0 };
+    let triggered = false;
+    let reason = '';
+
+    if (maxMem > 0 && ramMb > maxMem) {
+      violations.memoryCount++;
+      if (violations.memoryCount >= 3) {
+        triggered = true;
+        reason = `Memory limit exceeded: ${ramMb.toFixed(1)}MB (limit: ${maxMem}MB)`;
+      }
+    } else {
+      violations.memoryCount = 0;
+    }
+
+    if (maxCpu > 0 && cpuPct > maxCpu) {
+      violations.cpuCount++;
+      if (violations.cpuCount >= 3) {
+        triggered = true;
+        reason = `CPU limit exceeded: ${cpuPct.toFixed(1)}% (limit: ${maxCpu}%)`;
+      }
+    } else {
+      violations.cpuCount = 0;
+    }
+
+    this.watchdogViolations.set(serverId, violations);
+
+    if (!triggered) return;
+
+    const alertMsg = `[RADIX WATCHDOG] ALERT: ${reason}. Executing emergency safety termination to protect host infrastructure.`;
+
+    this.appGateway.sendServerLog(serverId, {
+      serverId,
+      level: 'error',
+      message: alertMsg,
+      timestamp: new Date().toISOString(),
+    });
+
+    try {
+      await this.logRepository.save({
+        serverId,
+        level: LogLevel.ERROR,
+        message: alertMsg,
+      } as any);
+    } catch { /* ignore */ }
+
+    const adapter = this.adapters.get(serverId);
+    if (adapter) {
+      await adapter.killServer();
+      this.adapters.delete(serverId);
+    }
+
+    await this.serverRepository.update(serverId, {
+      status: ServerStatus.STOPPED_BY_WATCHDOG,
+      processId: null as any,
+      cpuUsage: 0,
+      ramUsage: 0,
+    });
+
+    this.watchdogViolations.delete(serverId);
   }
 
   async generateServerToken(id: string, actorId?: string, actorName?: string) {
@@ -464,6 +537,8 @@ export class ServersService {
     if (dto.executablePath) server.executablePath = dto.executablePath;
     if (dto.startupCommand !== undefined) server.startupCommand = dto.startupCommand;
     if (dto.autoRestart !== undefined) server.autoRestart = dto.autoRestart;
+    if (dto.maxCpuLimit !== undefined) server.maxCpuLimit = dto.maxCpuLimit;
+    if (dto.maxMemoryLimit !== undefined) server.maxMemoryLimit = dto.maxMemoryLimit;
 
     await this.serverRepository.save(server);
 

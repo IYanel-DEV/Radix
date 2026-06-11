@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 interface StatusDotProps {
-  status: 'online' | 'offline' | 'starting' | 'stopping' | 'crashed' | 'updating' | 'running' | 'stopped';
+  status: 'online' | 'offline' | 'starting' | 'stopping' | 'crashed' | 'updating' | 'running' | 'stopped' | 'stopped_by_watchdog';
   size?: 'sm' | 'md' | 'lg';
   className?: string;
   label?: string;
@@ -18,6 +18,7 @@ const statusColors: Record<string, string> = {
   starting: 'bg-amber-500 shadow-amber-500/50',
   stopping: 'bg-orange-500 shadow-orange-500/50',
   crashed: 'bg-red-500 shadow-red-500/50',
+  stopped_by_watchdog: 'bg-red-700 shadow-red-700/50',
   updating: 'bg-blue-500 shadow-blue-500/50',
 };
 

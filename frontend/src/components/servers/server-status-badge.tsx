@@ -18,6 +18,7 @@ const statusLabels: Record<ServerStatus, string> = {
   stopping: 'Stopping',
   crashed: 'Crashed',
   updating: 'Updating',
+  stopped_by_watchdog: 'Stopped (Watchdog)',
 };
 
 const statusVariants: Record<string, 'default' | 'destructive' | 'outline' | 'success' | 'secondary' | 'warning'> = {
@@ -27,6 +28,7 @@ const statusVariants: Record<string, 'default' | 'destructive' | 'outline' | 'su
   stopping: 'warning',
   crashed: 'destructive',
   updating: 'default',
+  stopped_by_watchdog: 'destructive',
 };
 
 export function ServerStatusBadge({ status, showDot = true, className }: ServerStatusBadgeProps) {

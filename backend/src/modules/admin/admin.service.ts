@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException, ConflictException, BadRequestException, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, BadRequestException, ForbiddenException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { User } from '../../database/entities/user.entity';
 import { AuditLog } from '../../database/entities/audit-log.entity';
 import { Role } from '../../database/entities/role.entity';
+import { Permission } from '../../database/entities/permission.entity';
 import { Server } from '../../database/entities/server.entity';
 import { AuditLogger } from '../../common/utils/audit-logger';
 import { ChangeUserRoleDto, CreateStaffDto, UpdateStaffDto } from './admin.dto';
@@ -22,6 +23,8 @@ export class AdminService {
     private roleRepository: Repository<Role>,
     @InjectRepository(Server)
     private serverRepository: Repository<Server>,
+    @InjectRepository(Permission)
+    private permissionRepository: Repository<Permission>,
     private auditLogger: AuditLogger,
   ) {}
 
@@ -144,6 +147,35 @@ export class AdminService {
     return userData;
   }
 
+  private async enforceNoLastAdmin(userId: string, _action: 'delete' | 'suspend'): Promise<void> {
+    const adminPerm = await this.permissionRepository.findOne({ where: { name: 'canAccessAdminPanel' } });
+    if (!adminPerm) return;
+
+    const adminRoles = await this.roleRepository.find({ relations: ['permissions'] });
+    const adminRoleIds = adminRoles
+      .filter((r) => r.permissions?.some((p) => p.id === adminPerm.id))
+      .map((r) => r.id);
+
+    if (adminRoleIds.length === 0) return;
+
+    const target = await this.userRepository.findOne({ where: { id: userId }, relations: ['role'] });
+    if (!target) return;
+
+    const isTargetAdmin = adminRoleIds.includes(target.roleId);
+    if (!isTargetAdmin) return;
+
+    const exactAdminCount = await this.userRepository.createQueryBuilder('user')
+      .where('user.isActive = :active', { active: true })
+      .andWhere('user.roleId IN (:...ids)', { ids: adminRoleIds })
+      .getCount();
+
+    if (exactAdminCount <= 1) {
+      throw new ForbiddenException(
+        'Action Denied: Cannot delete or suspend the sole remaining Administrator account. This safety block prevents permanent system lockout.',
+      );
+    }
+  }
+
   async deleteUser(id: string, actorId?: string, actorName?: string) {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
@@ -153,6 +185,8 @@ export class AdminService {
     if (user.username === 'admin') {
       throw new BadRequestException('Cannot delete the primary admin account');
     }
+
+    await this.enforceNoLastAdmin(id, 'delete');
 
     await this.auditLogger.log({
       userId: actorId,
@@ -177,6 +211,10 @@ export class AdminService {
 
     if (user.username === 'admin') {
       throw new BadRequestException('Cannot suspend the primary admin account');
+    }
+
+    if (suspended) {
+      await this.enforceNoLastAdmin(id, 'suspend');
     }
 
     user.isActive = !suspended;

@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { PageHeader } from '@/components/ui/page-header';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,6 +33,7 @@ interface Role {
 }
 
 export default function AdminsPage() {
+  const router = useRouter();
   const [staff, setStaff] = useState<StaffUser[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,22 +45,27 @@ export default function AdminsPage() {
     username: '', email: '', password: '', displayName: '', roleId: '',
   });
 
-  const fetchStaff = async () => {
+  const fetchStaff = useCallback(async () => {
     try {
       const res: any = await apiGet('/api/admin/users', { page: 1, limit: 100, search: search || undefined });
       setStaff(res.data?.data || []);
-    } catch {}
+    } catch (err) { console.error('fetchStaff error:', err); }
     finally { setLoading(false); }
-  };
+  }, [search]);
 
-  const fetchRoles = async () => {
+  const fetchRoles = useCallback(async () => {
     try {
       const res: any = await apiGet('/api/roles');
       setRoles(res.data || []);
-    } catch {}
-  };
+    } catch (err) { console.error('fetchRoles error:', err); }
+  }, []);
 
-  useEffect(() => { Promise.all([fetchRoles(), fetchStaff()]); }, []);
+  useEffect(() => { Promise.all([fetchRoles(), fetchStaff()]); }, [fetchRoles, fetchStaff]);
+
+  const refresh = useCallback(() => {
+    fetchStaff();
+    router.refresh();
+  }, [fetchStaff, router]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,7 +74,7 @@ export default function AdminsPage() {
       toast.success('Staff account created');
       setShowCreate(false);
       setForm({ username: '', email: '', password: '', displayName: '', roleId: '' });
-      fetchStaff();
+      refresh();
     } catch (err) { toast.error(getApiError(err)); }
   };
 
@@ -79,7 +86,7 @@ export default function AdminsPage() {
       });
       toast.success('User updated');
       setEditId(null);
-      fetchStaff();
+      refresh();
     } catch (err) { toast.error(getApiError(err)); }
   };
 
@@ -88,15 +95,15 @@ export default function AdminsPage() {
     try {
       await apiDelete(`/api/admin/users/${id}`);
       toast.success('User deleted');
-      fetchStaff();
+      refresh();
     } catch (err) { toast.error(getApiError(err)); }
   };
 
-  const handleToggleStatus = async (id: string, current: boolean) => {
+  const handleToggleStatus = async (id: string, isCurrentlyActive: boolean) => {
     try {
-      await apiPut(`/api/admin/users/${id}/suspend`, { suspended: current });
-      toast.success(current ? 'User suspended' : 'User reactivated');
-      fetchStaff();
+      await apiPut(`/api/admin/users/${id}/suspend`, { suspended: isCurrentlyActive });
+      toast.success(isCurrentlyActive ? 'User suspended' : 'User reactivated');
+      refresh();
     } catch (err) { toast.error(getApiError(err)); }
   };
 

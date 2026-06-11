@@ -27,6 +27,8 @@ export function ServerSettings({ server }: ServerSettingsProps) {
     queryPort: server.queryPort,
     password: server.password || '',
     autoRestart: server.autoRestart,
+    maxCpuLimit: server.maxCpuLimit ?? 0,
+    maxMemoryLimit: server.maxMemoryLimit ?? 0,
   });
 
   const handleSave = async () => {
@@ -142,6 +144,50 @@ export function ServerSettings({ server }: ServerSettingsProps) {
         </CardContent>
       </Card>
 
+      <Card className="border-violet-500/30">
+        <CardHeader>
+          <CardTitle className="text-sm flex items-center gap-2">
+            <span className="text-violet-400">&#x269B;</span>
+            Infrastructure Resource Guard
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-xs text-slate-500">
+            Set hard resource limits. The Radix Watchdog will automatically terminate the server process
+            if it exceeds these thresholds for more than 15 seconds.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Max RAM Allocation (MB)</Label>
+              <Input
+                type="number"
+                min={0}
+                value={form.maxMemoryLimit}
+                onChange={(e) => setForm({ ...form, maxMemoryLimit: parseInt(e.target.value) || 0 })}
+                placeholder="0 = unlimited"
+              />
+              <p className="text-xs text-slate-500">
+                e.g. 2048 for 2 GB limit. Set to 0 to disable.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label>Max CPU Usage (%)</Label>
+              <Input
+                type="number"
+                min={0}
+                max={100}
+                value={form.maxCpuLimit}
+                onChange={(e) => setForm({ ...form, maxCpuLimit: parseInt(e.target.value) || 0 })}
+                placeholder="0 = unlimited"
+              />
+              <p className="text-xs text-slate-500">
+                Set between 1–100. Set to 0 to disable.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="flex items-center gap-3">
         <Button onClick={handleSave} disabled={saving}>
           {saving ? 'Saving...' : 'Save Changes'}
@@ -157,6 +203,8 @@ export function ServerSettings({ server }: ServerSettingsProps) {
             queryPort: server.queryPort,
             password: server.password || '',
             autoRestart: server.autoRestart,
+            maxCpuLimit: server.maxCpuLimit ?? 0,
+            maxMemoryLimit: server.maxMemoryLimit ?? 0,
           });
         }}>
           Cancel

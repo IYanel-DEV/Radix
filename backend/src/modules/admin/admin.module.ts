@@ -6,10 +6,11 @@ import { User } from '../../database/entities/user.entity';
 import { AuditLog } from '../../database/entities/audit-log.entity';
 import { Server } from '../../database/entities/server.entity';
 import { Role } from '../../database/entities/role.entity';
+import { Permission } from '../../database/entities/permission.entity';
 import { AuditLogger } from '../../common/utils/audit-logger';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, AuditLog, Server, Role])],
+  imports: [TypeOrmModule.forFeature([User, AuditLog, Server, Role, Permission])],
   controllers: [AdminController],
   providers: [AdminService, AuditLogger],
 })

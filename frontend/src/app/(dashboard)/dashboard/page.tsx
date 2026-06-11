@@ -32,6 +32,7 @@ export default function DashboardPage() {
       stopping: servers.filter((s) => s.status === 'stopping').length,
       crashed: servers.filter((s) => s.status === 'crashed').length,
       updating: servers.filter((s) => s.status === 'updating').length,
+      stopped_by_watchdog: servers.filter((s) => s.status === 'stopped_by_watchdog').length,
     },
     playerTrend: servers.length > 0 ? 0 : 0,
     serverTrend: servers.length > 0 ? 0 : 0,

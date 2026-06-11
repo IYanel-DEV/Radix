@@ -111,11 +111,13 @@ export async function apiDelete<T>(url: string): Promise<T> {
 
 export function getApiError(error: unknown): string {
   if (error instanceof AxiosError) {
+    if (error.response?.data?.message) {
+      const msg = error.response.data.message;
+      if (Array.isArray(msg)) return msg[0];
+      return msg;
+    }
     if (error.response?.data?.error) {
       return error.response.data.error;
-    }
-    if (error.response?.data?.message) {
-      return error.response.data.message;
     }
     if (error.message === 'Network Error') {
       return 'Unable to connect to server. Please check your connection.';

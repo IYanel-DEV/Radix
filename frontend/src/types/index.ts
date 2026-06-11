@@ -51,6 +51,8 @@ export interface Server {
   tickRate: number;
   processId?: number;
   autoRestart: boolean;
+  maxCpuLimit: number;
+  maxMemoryLimit: number;
   startupCommand?: string;
   serverDirectory: string;
   executablePath: string;
@@ -63,7 +65,7 @@ export interface Server {
   updatedAt: string;
 }
 
-export type ServerStatus = 'stopped' | 'starting' | 'running' | 'stopping' | 'crashed' | 'updating';
+export type ServerStatus = 'stopped' | 'starting' | 'running' | 'stopping' | 'crashed' | 'updating' | 'stopped_by_watchdog';
 export type EngineType = 'godot' | 'unreal' | 'unity';
 
 export interface ServerBuild {
