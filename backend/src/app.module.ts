@@ -31,8 +31,8 @@ import { User } from './database/entities/user.entity';
   imports: [
     TypeOrmModule.forRoot(databaseConfig),
     ThrottlerModule.forRoot([{
-      ttl: parseInt(process.env.THROTTLE_TTL, 10) || 60,
-      limit: parseInt(process.env.THROTTLE_LIMIT, 10) || 100,
+      ttl: parseInt(process.env.THROTTLE_TTL ?? '', 10) || 60,
+      limit: parseInt(process.env.THROTTLE_LIMIT ?? '', 10) || 100,
     }]),
     ScheduleModule.forRoot(),
     AuthModule,
