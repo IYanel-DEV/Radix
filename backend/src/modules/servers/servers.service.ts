@@ -189,12 +189,12 @@ export class ServersService {
       throw new ConflictException(`Query port ${dto.queryPort} is already in use`);
     }
 
-    if (!fs.existsSync(dto.serverDirectory)) {
-      throw new BadRequestException(`Server directory does not exist: ${dto.serverDirectory}`);
+    if (!dto.serverDirectory || !fs.existsSync(dto.serverDirectory)) {
+      throw new BadRequestException(`Server directory does not exist: ${dto.serverDirectory || '(not provided)'}`);
     }
 
-    if (!fs.existsSync(dto.executablePath)) {
-      throw new BadRequestException(`Executable not found: ${dto.executablePath}`);
+    if (!dto.executablePath || !fs.existsSync(dto.executablePath)) {
+      throw new BadRequestException(`Executable not found: ${dto.executablePath || '(not provided)'}`);
     }
 
     const server = this.serverRepository.create({
