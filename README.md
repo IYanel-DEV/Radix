@@ -10,7 +10,7 @@
     <img src="https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&style=flat-square" alt="TypeScript" />
     <img src="https://img.shields.io/badge/PostgreSQL-15+-4169E1?logo=postgresql&style=flat-square" alt="PostgreSQL" />
     <img src="https://img.shields.io/badge/Socket.IO-4.x-010101?logo=socket.io&style=flat-square" alt="Socket.IO" />
-    <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="MIT" />
+    <img src="https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square" alt="Apache 2.0" />
   </p>
 </div>
 
@@ -18,7 +18,7 @@
 
 ## Overview
 
-**Radix** is a full-stack game server infrastructure orchestrator that lets you dynamically allocate, run, monitor, and manage dedicated game processes from a single, premium web dashboard. Built with **NestJS** on the backend and **Next.js** on the frontend, Radix handles the entire server lifecycle — from binary discovery and process spawning to real-time log streaming and resource telemetry.
+**Radix** is a full-stack, multi-engine game server infrastructure orchestrator that lets you dynamically allocate, run, monitor, and manage dedicated game processes across **3 game engines** — Godot, Unity, and Unreal — all from a single, premium web dashboard. Built with **NestJS** on the backend and **Next.js** on the frontend, Radix handles the entire server lifecycle: binary discovery and extraction, engine-specific process spawning, real-time log streaming, and resource telemetry.
 
 ---
 
@@ -26,7 +26,8 @@
 
 | Capability | Description |
 |---|---|
-| **Dynamic Process Spawning** | Upload game server ZIPs; Radix extracts, discovers binaries (`server.console.exe`, `.pck` files), and spawns managed child processes. |
+| **Multi-Engine Orchestration** | Native support for **Godot**, **Unity**, and **Unreal** dedicated servers via a modular engine-adapter plugin system. Upload a ZIP; Radix auto-detects the engine type and applies the correct binary discovery & startup logic. |
+| **Dynamic Process Spawning** | Upload game server ZIPs; Radix extracts, discovers binaries (`server.console.exe`, `godot.linuxbsd.server.x86_64`, `.pck` files), and spawns managed child processes with engine-specific arguments. |
 | **Full Lifecycle Control** | Start, Stop, Restart, and Force Kill servers on demand. |
 | **Real-Time Log Streaming** | WebSocket-driven console output via Socket.IO — tail every `stdout` line in-browser. |
 | **Resource Metrics** | CPU, RAM, tick rate, and network I/O tracking loop with live Recharts visualizations. |
@@ -62,13 +63,14 @@
 
 ### Server Allocation Flow
 
-1. **Upload** — Admin uploads a `.zip` containing the dedicated server build.
-2. **Extract** — Backend decompresses the archive using `adm-zip`.
-3. **Discover** — The extractor recursively scans for known binaries (`server.console.exe`, `godot.linuxbsd.server.x86_64`, etc.) or asset packages (`.pck`).
-4. **Persist** — Server metadata (port, region, build version, password, etc.) is written to the database.
-5. **Spawn** — On `Start`, Radix forks a child process via Node's `child_process.spawn`, piping `stdout`/`stderr` to the log gateway.
-6. **Monitor** — A metrics loop reads CPU/RAM at intervals; updates are pushed to the dashboard via Socket.IO.
-7. **Control** — Stop sends `SIGTERM`; Kill sends `SIGKILL`; Restart stops then re-spawns.
+1. **Upload** — Admin uploads a `.zip` containing the dedicated server build for any supported engine (Godot, Unity, Unreal).
+2. **Engine Detection** — Radix inspects the extracted file tree against engine-specific signatures to determine the correct engine adapter.
+3. **Extract** — Backend decompresses the archive using `adm-zip`.
+4. **Discover** — The engine adapter recursively scans for known binaries (`server.console.exe` for Godot/Unity, `godot.linuxbsd.server.x86_64`, `.pck` asset packages, Unreal's `GameServer.exe`, etc.).
+5. **Persist** — Server metadata (port, region, build version, password, etc.) is written to the database.
+6. **Spawn** — On `Start`, Radix forks a child process via Node's `child_process.spawn`, piping `stdout`/`stderr` to the log gateway.
+7. **Monitor** — A metrics loop reads CPU/RAM at intervals; updates are pushed to the dashboard via Socket.IO.
+8. **Control** — Stop sends `SIGTERM`; Kill sends `SIGKILL`; Restart stops then re-spawns.
 
 ---
 
@@ -229,7 +231,7 @@ We welcome contributions! Please see our [Contributing Guide](./.github/CONTRIBU
 
 ## License
 
-Distributed under the MIT License. See [LICENSE](./LICENSE) for more information.
+Distributed under the Apache License 2.0. See [LICENSE](./LICENSE) for more information.
 
 ---
 
