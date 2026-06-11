@@ -89,7 +89,7 @@
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-org/radix.git
+git clone https://github.com/IYanel-DEV/Radix.git
 cd radix
 ```
 
