@@ -1,0 +1,94 @@
+'use client';
+
+import { Bell, Menu, Search } from 'lucide-react';
+import { useAuthStore } from '@/stores/auth-store';
+import { useNotificationStore } from '@/stores/notification-store';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { NotificationDropdown } from './notification-dropdown';
+import { UserDropdown } from './user-dropdown';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
+
+interface TopbarProps {
+  onMenuClick: () => void;
+}
+
+export function Topbar({ onMenuClick }: TopbarProps) {
+  const user = useAuthStore((s) => s.user);
+  const unreadCount = useNotificationStore((s) => s.unreadCount);
+
+  return (
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-white/5 bg-[#0B0A0F]/80 backdrop-blur-xl px-4 lg:px-6">
+      <button
+        onClick={onMenuClick}
+        className="flex lg:hidden h-9 w-9 items-center justify-center rounded-lg text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-colors"
+      >
+        <Menu className="h-5 w-5" />
+      </button>
+
+      <div className="hidden sm:flex relative flex-1 max-w-md">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+        <input
+          type="text"
+          placeholder="Search servers, players..."
+          className={cn(
+            'h-9 w-full rounded-lg border border-white/10 bg-white/5 pl-9 pr-4 text-sm text-slate-100 placeholder:text-slate-500',
+            'focus:outline-none focus:ring-2 focus:ring-radix-500/50 focus:border-radix-500/50',
+            'transition-all duration-200'
+          )}
+        />
+      </div>
+
+      <div className="flex items-center gap-2 ml-auto">
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="relative h-9 w-9 flex items-center justify-center rounded-lg text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-colors">
+              <Bell className="h-5 w-5" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
+            </button>
+          </PopoverTrigger>
+          <PopoverContent
+            align="end"
+            sideOffset={8}
+            className="w-80 p-0 border-white/10 bg-[#0B0A0F]"
+          >
+            <NotificationDropdown />
+          </PopoverContent>
+        </Popover>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="flex items-center gap-2 rounded-lg p-1.5 hover:bg-white/5 transition-colors">
+              <Avatar className="h-8 w-8">
+                <AvatarFallback className="bg-radix-600/20 text-xs text-radix-400">
+                  {user?.username?.charAt(0).toUpperCase() || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <div className="hidden md:block text-left">
+                <p className="text-sm font-medium text-slate-200 leading-tight">
+                  {user?.username || 'User'}
+                </p>
+                <p className="text-xs text-slate-500 capitalize">
+                  {user?.role?.name || 'user'}
+                </p>
+              </div>
+            </button>
+          </DropdownMenuTrigger>
+          <UserDropdown />
+        </DropdownMenu>
+      </div>
+    </header>
+  );
+}
