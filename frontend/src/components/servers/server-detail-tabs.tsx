@@ -1,14 +1,16 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ServerOverview } from './server-overview';
-import { ServerPerformance } from './server-performance';
 import { ServerPlayers } from './server-players';
-import { ServerConsole } from './server-console';
 import { ServerSettings } from './server-settings';
-import { ServerBackups } from './server-backups';
-import { ServerBuildSelector } from '../builds/server-build-selector';
 import type { Server } from '@/types';
+
+const ServerPerformance = dynamic(() => import('./server-performance').then(m => ({ default: m.ServerPerformance })), { ssr: false });
+const ServerConsole = dynamic(() => import('./server-console').then(m => ({ default: m.ServerConsole })), { ssr: false });
+const ServerBackups = dynamic(() => import('./server-backups').then(m => ({ default: m.ServerBackups })), { ssr: false });
+const ServerBuildSelector = dynamic(() => import('../builds/server-build-selector').then(m => ({ default: m.ServerBuildSelector })), { ssr: false });
 
 interface ServerDetailTabsProps {
   server: Server;
