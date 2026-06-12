@@ -1,15 +1,20 @@
-import { Controller, Post, Get, Body, Param, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { GameBaaSService } from './game-baas.service';
+import { IdentityLinksService } from './identity-links.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { Platform } from '../../database/entities/identity-link.entity';
 
 @ApiTags('Game BaaS - Players')
 @Controller('api/v1/public/players')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class GameBaaSPlayersController {
-  constructor(private readonly gameBaaSService: GameBaaSService) {}
+  constructor(
+    private readonly gameBaaSService: GameBaaSService,
+    private readonly identityService: IdentityLinksService,
+  ) {}
 
   @Post('friends')
   @ApiOperation({ summary: 'Send a friend request' })
@@ -75,5 +80,49 @@ export class GameBaaSPlayersController {
       status: friendship.status,
       message: body.accept ? 'Friend request accepted' : 'Friend request declined',
     };
+  }
+
+  @Post('identities/link')
+  @ApiOperation({ summary: 'Link a platform identity to current player' })
+  async linkIdentity(
+    @CurrentUser() user: any,
+    @Body() body: { platform: Platform; platformId: string },
+  ) {
+    const link = await this.identityService.linkIdentity(
+      user.sub,
+      body.platform,
+      body.platformId,
+    );
+    return {
+      id: link.id,
+      platform: link.platform,
+      platformId: link.platformId,
+      linkedAt: link.linkedAt,
+      message: `${body.platform} account linked successfully`,
+    };
+  }
+
+  @Get('identities')
+  @ApiOperation({ summary: 'Get all identity links for current player' })
+  async getIdentities(@CurrentUser() user: any) {
+    const links = await this.identityService.getPlayerLinks(user.sub);
+    return {
+      identities: links.map((l) => ({
+        id: l.id,
+        platform: l.platform,
+        platformId: l.platformId,
+        linkedAt: l.linkedAt,
+      })),
+    };
+  }
+
+  @Delete('identities/:platform')
+  @ApiOperation({ summary: 'Unlink a platform identity' })
+  async unlinkIdentity(
+    @CurrentUser() user: any,
+    @Param('platform') platform: Platform,
+  ) {
+    await this.identityService.unlinkIdentity(user.sub, platform);
+    return { message: `${platform} account unlinked successfully` };
   }
 }

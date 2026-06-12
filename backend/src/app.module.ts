@@ -24,6 +24,7 @@ import { EnginePluginsModule } from './modules/engine-plugins/engine-plugins.mod
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { PluginModule } from './modules/plugin/plugin.module';
 import { GameBaaSModule } from './modules/game-baas/game-baas.module';
+import { LiveTuningModule } from './modules/live-tuning/live-tuning.module';
 import { SeedService } from './database/seeds/seed.service';
 import { Permission } from './database/entities/permission.entity';
 import { Role } from './database/entities/role.entity';
@@ -58,6 +59,7 @@ import { User } from './database/entities/user.entity';
     AnalyticsModule,
     PluginModule,
     GameBaaSModule,
+    LiveTuningModule,
     TypeOrmModule.forFeature([User, Role, Permission]),
   ],
   providers: [SeedService],
