@@ -54,7 +54,7 @@ function ResetPasswordForm() {
         animate={{ opacity: 1, y: 0 }}
         className="rounded-xl border border-white/5 bg-[#0B0A0F]/80 backdrop-blur-xl p-8 shadow-2xl text-center"
       >
-        <h2 className="text-xl font-bold text-white neon-text mb-2">Invalid or expired link</h2>
+        <h2 className="text-xl font-bold tracking-tight text-zinc-50 mb-2">Invalid or expired link</h2>
         <p className="text-sm text-slate-400 mb-6">This password reset link is invalid or has expired.</p>
         <Link href="/forgot-password">
           <Button variant="outline">Request a new link</Button>
@@ -71,7 +71,7 @@ function ResetPasswordForm() {
       className="rounded-xl border border-white/5 bg-[#0B0A0F]/80 backdrop-blur-xl p-8 shadow-2xl"
     >
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-white neon-text">Set new password</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-zinc-50">Set new password</h2>
         <p className="text-sm text-slate-400 mt-1">Choose a strong password for your account</p>
       </div>
 

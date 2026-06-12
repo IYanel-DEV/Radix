@@ -15,12 +15,22 @@ import { Notification } from '../database/entities/notification.entity';
 import { Backup } from '../database/entities/backup.entity';
 import { ServerLog } from '../database/entities/server-log.entity';
 import { ServerConfig } from '../database/entities/server-config.entity';
+import { Game } from '../database/entities/game.entity';
+import { ApiKey } from '../database/entities/api-key.entity';
+import { GamePlayer } from '../database/entities/game-player.entity';
+import { PlayerFriendship } from '../database/entities/player-friendship.entity';
+import { PlayerEvent } from '../database/entities/player-event.entity';
+import { IdentityLink } from '../database/entities/identity-link.entity';
+import { PlayerPulse } from '../database/entities/player-pulse.entity';
+import { LiveTuning } from '../database/entities/live-tuning.entity';
 
 const entities = [
   User, Role, Permission, Session,
   Server, ServerBuild, ServerMetric, Player, PlayerStat,
   Ban, Warning, AuditLog, Notification, Backup,
   ServerLog, ServerConfig,
+  Game, ApiKey, GamePlayer, PlayerFriendship, PlayerEvent,
+  IdentityLink, PlayerPulse, LiveTuning,
 ];
 
 const isDev = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;

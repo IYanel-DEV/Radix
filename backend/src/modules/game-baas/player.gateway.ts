@@ -30,7 +30,7 @@ export class PlayerGateway implements OnGatewayConnection, OnGatewayDisconnect {
   server: Server;
 
   private readonly logger = new Logger('PlayerGateway');
-  private playerSockets: Map<string, { socketId: string; playerId: string; username: string }> = new Map();
+  private playerSockets: Map<string, { socketId: string; playerId: string; username: string; apiKeyId?: string }> = new Map();
   private socketToPlayer: Map<string, string> = new Map();
 
   constructor(
@@ -55,8 +55,9 @@ export class PlayerGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       const playerId = payload.sub;
       const username = payload.username || 'unknown';
+      const apiKeyId = (client.handshake.auth?.apiKeyId || client.handshake.query?.apiKeyId) as string | undefined;
 
-      this.playerSockets.set(client.id, { socketId: client.id, playerId, username });
+      this.playerSockets.set(client.id, { socketId: client.id, playerId, username, apiKeyId });
       this.socketToPlayer.set(client.id, playerId);
       await this.gameBaaSService.setPlayerOnline(playerId, true);
       await this.pulseService.setOnline(playerId);
@@ -105,8 +106,8 @@ export class PlayerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  private broadcastToFriends(playerId: string, event: string, data: any) {
-    const onlineFriends = this.pulseService.getOnlineFriends(playerId);
+  private async broadcastToFriends(playerId: string, event: string, data: any) {
+    const onlineFriends = await this.pulseService.getOnlineFriends(playerId);
     for (const friendId of onlineFriends) {
       for (const [socketId, pData] of this.playerSockets) {
         if (pData.playerId === friendId) {
@@ -114,6 +115,25 @@ export class PlayerGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
       }
     }
+  }
+
+  disconnectByKeyId(keyId: string): number {
+    let count = 0;
+    const disconnected: string[] = [];
+    for (const [socketId, data] of this.playerSockets) {
+      if (data.apiKeyId === keyId) {
+        const client = this.server.sockets.sockets.get(socketId);
+        if (client) {
+          client.disconnect(true);
+          disconnected.push(socketId);
+          count++;
+        }
+      }
+    }
+    if (count > 0) {
+      this.logger.warn(`Revoked key ${keyId}: forcefully disconnected ${count} active connection(s)`);
+    }
+    return count;
   }
 
   @SubscribeMessage('send_global_chat')
@@ -228,7 +248,7 @@ export class PlayerGateway implements OnGatewayConnection, OnGatewayDisconnect {
         customData: hub.customData,
       });
 
-      client.to(`hub:${data.hubId}`).emit('hub_updated', {
+      (client as any).to(`hub:${data.hubId}`).emit('hub_updated', {
         hubId: data.hubId,
         players: hubManager.getHubPlayers(data.hubId),
         count: hubManager.getHubPlayers(data.hubId).length,
@@ -241,7 +261,7 @@ export class PlayerGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('hub_leave')
-  handleHubLeave(@ConnectedSocket() client: Socket, @MessageBody() data: { hubId: string }) {
+  async handleHubLeave(@ConnectedSocket() client: Socket, @MessageBody() data: { hubId: string }) {
     const player = this.playerSockets.get(client.id);
     if (!player) return;
 

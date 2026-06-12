@@ -28,7 +28,7 @@ export function ServerOverview({ server }: ServerOverviewProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h2 className="text-xl font-bold text-white neon-text">{server.name}</h2>
+          <h2 className="text-xl font-bold tracking-tight text-zinc-50">{server.name}</h2>
           <ServerStatusBadge status={server.status} />
         </div>
         <ServerActions server={server} showLabel />

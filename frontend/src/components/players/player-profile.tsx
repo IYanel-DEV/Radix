@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { PlayerCard } from './player-card';
 import { PlayerActions } from './player-actions';
+import { IdentityLinksCard } from './identity-links-card';
+import { PulseStatusCard } from './pulse-status-card';
 import type { Player, Warning, Ban } from '@/types';
 
 interface PlayerProfileProps {
@@ -106,6 +108,11 @@ export function PlayerProfile({ player, warnings, bans }: PlayerProfileProps) {
             )}
           </CardContent>
         </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <IdentityLinksCard playerId={player.playerId} />
+        <PulseStatusCard playerId={player.playerId} />
       </div>
     </div>
   );

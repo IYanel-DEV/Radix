@@ -34,7 +34,7 @@ export function Pagination({
       </Button>
       {pages.map((page, index) =>
         page === '...' ? (
-          <span key={`ellipsis-${index}`} className="px-2 text-slate-500">
+          <span key={`ellipsis-${index}`} className="px-2 text-zinc-500">
             ...
           </span>
         ) : (
@@ -46,8 +46,8 @@ export function Pagination({
             className={cn(
               'h-8 w-8 text-xs',
               page === currentPage
-                ? 'bg-radix-600 hover:bg-radix-500 text-white'
-                : 'text-slate-400'
+                ? 'bg-violet-600 hover:bg-violet-500 text-white'
+                : 'text-zinc-400'
             )}
           >
             {page}

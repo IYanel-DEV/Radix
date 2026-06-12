@@ -51,8 +51,8 @@ const config: Config = {
           foreground: 'hsl(var(--card-foreground))',
         },
         success: {
-          DEFAULT: '#a855f7',
-          foreground: '#faf5ff',
+          DEFAULT: '#22c55e',
+          foreground: '#f0fdf4',
         },
         warning: {
           DEFAULT: '#f59e0b',
@@ -94,54 +94,22 @@ const config: Config = {
           from: { transform: 'translateX(0)', opacity: '1' },
           to: { transform: 'translateX(100%)', opacity: '0' },
         },
-        'pulse-glow': {
-          '0%, 100%': {
-            boxShadow: '0 0 8px rgba(168, 85, 247, 0.3)',
-          },
-          '50%': {
-            boxShadow: '0 0 20px rgba(168, 85, 247, 0.6)',
-          },
-        },
-        'pulse-warning': {
-          '0%, 100%': {
-            boxShadow: '0 0 8px rgba(245, 158, 11, 0.3)',
-          },
-          '50%': {
-            boxShadow: '0 0 20px rgba(245, 158, 11, 0.6)',
-          },
-        },
-        'pulse-danger': {
-          '0%, 100%': {
-            boxShadow: '0 0 8px rgba(239, 68, 68, 0.3)',
-          },
-          '50%': {
-            boxShadow: '0 0 20px rgba(239, 68, 68, 0.6)',
-          },
-        },
-        'glow-pulse': {
-          '0%, 100%': { opacity: '0.4' },
-          '50%': { opacity: '1' },
-        },
-        'spin-slow': {
-          from: { transform: 'rotate(0deg)' },
-          to: { transform: 'rotate(360deg)' },
-        },
         'scale-in': {
           from: { transform: 'scale(0.95)', opacity: '0' },
           to: { transform: 'scale(1)', opacity: '1' },
         },
+        'spin': {
+          from: { transform: 'rotate(0deg)' },
+          to: { transform: 'rotate(360deg)' },
+        },
       },
       animation: {
-        'fade-in': 'fade-in 0.3s ease-out',
-        'fade-in-up': 'fade-in-up 0.3s ease-out',
-        'slide-in-right': 'slide-in-right 0.3s ease-out',
-        'slide-out-right': 'slide-out-right 0.3s ease-out',
-        'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
-        'pulse-warning': 'pulse-warning 2s ease-in-out infinite',
-        'pulse-danger': 'pulse-danger 2s ease-in-out infinite',
-        'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
-        'spin-slow': 'spin-slow 3s linear infinite',
-        'scale-in': 'scale-in 0.2s ease-out',
+        'fade-in': 'fade-in 0.2s ease-out',
+        'fade-in-up': 'fade-in-up 0.25s ease-out',
+        'slide-in-right': 'slide-in-right 0.25s ease-out',
+        'slide-out-right': 'slide-out-right 0.25s ease-out',
+        'scale-in': 'scale-in 0.15s ease-out',
+        'spin': 'spin 0.6s linear infinite',
       },
     },
   },

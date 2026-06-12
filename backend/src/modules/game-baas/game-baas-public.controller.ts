@@ -1,29 +1,43 @@
-import { Controller, Post, Get, Body, Param, Headers, UnauthorizedException, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiHeader } from '@nestjs/swagger';
+import { Controller, Post, Get, Body, UnauthorizedException, UseGuards, ValidationPipe, Req } from '@nestjs/common';
+import { Request } from 'express';
+import { ApiTags, ApiOperation, ApiHeader } from '@nestjs/swagger';
 import { GameBaaSService } from './game-baas.service';
+import { RegisterPlayerDto, LoginPlayerDto } from './game-baas.dto';
 import { Public } from '../../common/decorators/public.decorator';
+import { PublicKeyGuard } from '../../common/guards/public-key.guard';
+import { Game } from '../../database/entities/game.entity';
 
 @ApiTags('Game BaaS - Public')
-@Controller('api/v1/public')
+@UseGuards(PublicKeyGuard)
+@Controller('v1/public')
 export class GameBaaSPublicController {
   constructor(private readonly gameBaaSService: GameBaaSService) {}
+
+  @Get('ping')
+  @Public()
+  @ApiOperation({ summary: 'Lightweight health-check for network diagnostics' })
+  ping() {
+    return { status: 'online', timestamp: new Date().toISOString() };
+  }
 
   @Post('auth/register')
   @Public()
   @ApiOperation({ summary: 'Register a new game player' })
-  @ApiHeader({ name: 'x-radix-game-token', required: true, description: 'Game API token' })
+  @ApiHeader({ name: 'Radix-Public-Key', required: true, description: 'Game public key (x-radix-public-key also accepted)' })
   async register(
-    @Headers('x-radix-game-token') gameToken: string,
-    @Body() body: { username: string; email: string; password: string },
+    @Req() req: Request,
+    @Body(ValidationPipe) body: RegisterPlayerDto,
   ) {
-    if (!gameToken) {
-      throw new UnauthorizedException('Game token is required');
+    const game: Game = (req as any)['game'];
+    if (!game) {
+      throw new UnauthorizedException('Invalid Client Credentials');
     }
+
     const player = await this.gameBaaSService.registerPlayer(
-      gameToken,
       body.username,
       body.email,
       body.password,
+      game.id,
     );
     return {
       message: 'Player registered successfully',
@@ -35,18 +49,20 @@ export class GameBaaSPublicController {
   @Post('auth/login')
   @Public()
   @ApiOperation({ summary: 'Login a game player' })
-  @ApiHeader({ name: 'x-radix-game-token', required: true, description: 'Game API token' })
+  @ApiHeader({ name: 'Radix-Public-Key', required: true, description: 'Game public key (x-radix-public-key also accepted)' })
   async login(
-    @Headers('x-radix-game-token') gameToken: string,
-    @Body() body: { username: string; password: string },
+    @Req() req: Request,
+    @Body(ValidationPipe) body: LoginPlayerDto,
   ) {
-    if (!gameToken) {
-      throw new UnauthorizedException('Game token is required');
+    const game: Game = (req as any)['game'];
+    if (!game) {
+      throw new UnauthorizedException('Invalid Client Credentials');
     }
+
     const result = await this.gameBaaSService.loginPlayer(
-      gameToken,
       body.username,
       body.password,
+      game.id,
     );
     return {
       accessToken: result.accessToken,

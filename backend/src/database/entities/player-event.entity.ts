@@ -12,7 +12,7 @@ export class PlayerEvent {
   @Column({ type: 'varchar', length: 100 })
   actionType: string;
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'simple-json' })
   payload: Record<string, any>;
 
   @Column({ type: 'datetime' })

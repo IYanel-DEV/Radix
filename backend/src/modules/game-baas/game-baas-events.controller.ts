@@ -1,56 +1,41 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, ValidationPipe } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { GameBaaSService } from './game-baas.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-
-interface QueuedEvent {
-  actionType: string;
-  payload: any;
-  clientTimestamp: string;
-}
+import { SyncEventsDto } from './game-baas.dto';
 
 @ApiTags('Game BaaS - Events')
-@Controller('api/v1/public/events')
+@Controller('v1/public/events')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class GameBaaSEventsController {
+  constructor(private readonly gameBaaSService: GameBaaSService) {}
+
   @Post('sync')
-  @ApiOperation({ summary: 'Batch upload offline events' })
+  @ApiOperation({ summary: 'Batch upload offline events with validation and collapse' })
   async syncEvents(
     @CurrentUser() user: any,
-    @Body() body: { events: QueuedEvent[] },
+    @Body(ValidationPipe) body: SyncEventsDto,
   ) {
-    const results: { index: number; success: boolean; error?: string }[] = [];
-
-    for (let i = 0; i < body.events.length; i++) {
-      const event = body.events[i];
-      try {
-        await this.processEvent(user.sub, event, i);
-        results.push({ index: i, success: true });
-      } catch (err: any) {
-        results.push({ index: i, success: false, error: err.message });
-      }
+    if (!body.events || body.events.length === 0) {
+      return { message: 'No events to process', total: 0, successful: 0, failed: 0, results: [] };
     }
+
+    const results = await this.gameBaaSService.processSyncEvents(
+      user.sub,
+      body.events,
+    );
+
+    const successful = results.filter((r) => r.success).length;
+    const failed = results.filter((r) => !r.success).length;
 
     return {
-      message: 'Events processed',
+      message: `Events processed: ${successful} succeeded, ${failed} failed`,
       total: body.events.length,
-      successful: results.filter((r) => r.success).length,
-      failed: results.filter((r) => !r.success).length,
+      successful,
+      failed,
       results,
     };
-  }
-
-  private async processEvent(playerId: string, event: QueuedEvent, order: number): Promise<void> {
-    switch (event.actionType) {
-      case 'match_end':
-      case 'match_start':
-      case 'stat_update':
-      case 'achievement_unlock':
-      case 'level_up':
-        return;
-      default:
-        throw new Error(`Unknown event type: ${event.actionType}`);
-    }
   }
 }

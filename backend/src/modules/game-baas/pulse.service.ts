@@ -1,11 +1,12 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PlayerPulse, PulseStatus } from '../../database/entities/player-pulse.entity';
 import { PlayerFriendship, FriendStatus } from '../../database/entities/player-friendship.entity';
 
 @Injectable()
-export class PulseService implements OnModuleInit {
+export class PulseService {
+  private readonly logger = new Logger('PulseService');
   private onlinePlayers: Map<string, string> = new Map();
 
   constructor(
@@ -14,10 +15,6 @@ export class PulseService implements OnModuleInit {
     @InjectRepository(PlayerFriendship)
     private friendshipRepository: Repository<PlayerFriendship>,
   ) {}
-
-  onModuleInit() {
-    this.pulseRepository.delete({});
-  }
 
   async setPulse(
     playerId: string,
@@ -93,5 +90,9 @@ export class PulseService implements OnModuleInit {
 
   getOnlineCount(): number {
     return this.onlinePlayers.size;
+  }
+
+  async getPlayerPulse(playerId: string): Promise<PlayerPulse | null> {
+    return this.pulseRepository.findOne({ where: { playerId } });
   }
 }

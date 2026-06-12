@@ -9,13 +9,19 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 
+function parseAllowedOrigins(raw: string | undefined): string | string[] {
+  if (!raw || raw.trim() === '') {
+    return 'http://localhost:3000';
+  }
+  const parts = raw.split(',').map((s) => s.trim()).filter(Boolean);
+  return parts.length === 1 ? parts[0] : parts;
+}
+
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
 
   const port = parseInt(process.env.PORT ?? '', 10) || 3001;
-  const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:3000';
-
   app.setGlobalPrefix('api');
 
   app.use((req: Request, res: Response, next: NextFunction) => {
@@ -23,11 +29,13 @@ async function bootstrap() {
     next();
   });
 
+  const allowedOrigins = parseAllowedOrigins(process.env.CORS_ORIGIN);
   app.enableCors({
-    origin: corsOrigin,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    origin: allowedOrigins,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
+  logger.log(`CORS origins: ${Array.isArray(allowedOrigins) ? allowedOrigins.join(', ') : allowedOrigins}`);
 
   app.use(helmet.default({
     contentSecurityPolicy: false,

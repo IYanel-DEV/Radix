@@ -1,0 +1,9 @@
+{
+  "control_plane_url": "ws://localhost:3001/api/v1/cluster/nodes",
+  "node_id": "rack-01-node-03",
+  "node_secret": "your-node-secret-from-dashboard",
+  "heartbeat_sec": 8,
+  "http_listen_addr": ":9800",
+  "tls_cert_file": "/etc/radix/certs/agent.crt",
+  "tls_key_file": "/etc/radix/certs/agent.key"
+}

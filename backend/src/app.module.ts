@@ -25,10 +25,12 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { PluginModule } from './modules/plugin/plugin.module';
 import { GameBaaSModule } from './modules/game-baas/game-baas.module';
 import { LiveTuningModule } from './modules/live-tuning/live-tuning.module';
+import { ClusterModule } from './modules/cluster/cluster.module';
 import { SeedService } from './database/seeds/seed.service';
 import { Permission } from './database/entities/permission.entity';
 import { Role } from './database/entities/role.entity';
 import { User } from './database/entities/user.entity';
+import { Game } from './database/entities/game.entity';
 
 @Module({
   imports: [
@@ -60,7 +62,8 @@ import { User } from './database/entities/user.entity';
     PluginModule,
     GameBaaSModule,
     LiveTuningModule,
-    TypeOrmModule.forFeature([User, Role, Permission]),
+    ClusterModule,
+    TypeOrmModule.forFeature([User, Role, Permission, Game]),
   ],
   providers: [SeedService],
 })

@@ -12,7 +12,7 @@ export default function AuthLayout({
           <Gamepad2 className="h-7 w-7 text-radix-400" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-white neon-text">Radix</h1>
+          <h1 className="text-xl font-bold tracking-tight text-zinc-50">Radix</h1>
           <p className="text-xs text-slate-500">Game Server Management</p>
         </div>
       </div>

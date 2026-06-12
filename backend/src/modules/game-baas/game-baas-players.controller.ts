@@ -1,13 +1,14 @@
-import { Controller, Post, Get, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Put, Delete, Body, Param, UseGuards, ValidationPipe } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { GameBaaSService } from './game-baas.service';
 import { IdentityLinksService } from './identity-links.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Platform } from '../../database/entities/identity-link.entity';
+import { AddFriendDto, RespondFriendDto, LinkIdentityDto, UpdatePlayerProfileDto } from './game-baas.dto';
 
 @ApiTags('Game BaaS - Players')
-@Controller('api/v1/public/players')
+@Controller('v1/public/players')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class GameBaaSPlayersController {
@@ -16,11 +17,30 @@ export class GameBaaSPlayersController {
     private readonly identityService: IdentityLinksService,
   ) {}
 
+  @Put('profile')
+  @ApiOperation({ summary: 'Update player profile metadata (level, rank, stats, etc.)' })
+  async updateProfile(
+    @CurrentUser() user: any,
+    @Body(ValidationPipe) body: UpdatePlayerProfileDto,
+  ) {
+    const player = await this.gameBaaSService.updatePlayerProfile(user.sub, body.metadata);
+    return {
+      player: {
+        id: player.id,
+        username: player.username,
+        email: player.email,
+        metadata: player.metadata,
+        createdAt: player.createdAt,
+      },
+      message: 'Profile updated successfully',
+    };
+  }
+
   @Post('friends')
   @ApiOperation({ summary: 'Send a friend request' })
   async addFriend(
     @CurrentUser() user: any,
-    @Body() body: { username: string },
+    @Body(ValidationPipe) body: AddFriendDto,
   ) {
     const friendship = await this.gameBaaSService.addFriend(user.sub, body.username);
     return {
@@ -68,7 +88,7 @@ export class GameBaaSPlayersController {
   async respondToRequest(
     @CurrentUser() user: any,
     @Param('friendshipId') friendshipId: string,
-    @Body() body: { accept: boolean },
+    @Body(ValidationPipe) body: RespondFriendDto,
   ) {
     const friendship = await this.gameBaaSService.respondToFriendRequest(
       friendshipId,
@@ -86,11 +106,11 @@ export class GameBaaSPlayersController {
   @ApiOperation({ summary: 'Link a platform identity to current player' })
   async linkIdentity(
     @CurrentUser() user: any,
-    @Body() body: { platform: Platform; platformId: string },
+    @Body(ValidationPipe) body: LinkIdentityDto,
   ) {
     const link = await this.identityService.linkIdentity(
       user.sub,
-      body.platform,
+      body.platform as Platform,
       body.platformId,
     );
     return {

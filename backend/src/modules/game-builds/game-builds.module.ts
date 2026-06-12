@@ -3,9 +3,16 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { GameBuildsController } from './game-builds.controller';
 import { GameBuildsService } from './game-builds.service';
 import { ServerBuild } from '../../database/entities/server-build.entity';
+import { Server } from '../../database/entities/server.entity';
+import { AuditModule } from '../audit/audit.module';
+import { WebSocketModule } from '../../websocket/websocket.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ServerBuild])],
+  imports: [
+    TypeOrmModule.forFeature([ServerBuild, Server]),
+    AuditModule,
+    WebSocketModule,
+  ],
   controllers: [GameBuildsController],
   providers: [GameBuildsService],
   exports: [GameBuildsService],

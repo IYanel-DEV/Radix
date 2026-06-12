@@ -86,6 +86,16 @@ export interface ServerBuild {
   updatedAt: string;
 }
 
+export interface GamePlayer {
+  id: string;
+  username: string;
+  email: string;
+  isOnline: boolean;
+  lastSeenAt: string | null;
+  gameId: string | null;
+  createdAt: string;
+}
+
 export interface Player {
   id: string;
   playerId: string;

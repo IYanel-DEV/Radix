@@ -4,6 +4,7 @@ import { Server } from './server.entity';
 import { AuditLog } from './audit-log.entity';
 import { Notification } from './notification.entity';
 import { Session } from './session.entity';
+import { Game } from './game.entity';
 
 @Entity('users')
 export class User {
@@ -64,6 +65,9 @@ export class User {
 
   @OneToMany(() => Session, (session) => session.user)
   sessions: Session[];
+
+  @OneToMany(() => Game, (game) => game.user)
+  games: Game[];
 
   @CreateDateColumn({ type: 'datetime' })
   createdAt: Date;

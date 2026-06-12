@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Param, Body, Query, UploadedFile, UseGuards, UseInterceptors, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Body, Query, UploadedFile, UseGuards, UseInterceptors, BadRequestException, StreamableFile } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes, ApiQuery } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { GameBuildsService } from './game-builds.service';
@@ -26,6 +26,18 @@ export class GameBuildsController {
   ) {
     if (!file) throw new BadRequestException('File is required');
     return this.gameBuildsService.uploadBuild(file, engineType, user.id, user.username);
+  }
+
+  @Get(':id/download')
+  @Roles('canUploadBuild')
+  @ApiOperation({ summary: 'Download a build zip file' })
+  async downloadBuild(@Param('id') id: string): Promise<StreamableFile> {
+    const stream = await this.gameBuildsService.getBuildStream(id);
+    return new StreamableFile(stream.fileStream, {
+      type: 'application/zip',
+      disposition: `attachment; filename="${stream.fileName}"`,
+      length: stream.size,
+    });
   }
 
   @Get()

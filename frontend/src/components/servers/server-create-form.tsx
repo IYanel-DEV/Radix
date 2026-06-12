@@ -116,7 +116,7 @@ export function ServerCreateForm() {
         {[1, 2, 3].map((s) => (
           <div key={s} className="flex items-center">
             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-              s === step ? 'bg-radix-600 text-white neon-glow' :
+              s === step ? 'bg-violet-600 text-white' :
               s < step ? 'bg-radix-600 text-white' : 'bg-white/5 text-slate-400'
             }`}>
               {s < step ? '\u2713' : s}
@@ -143,7 +143,7 @@ export function ServerCreateForm() {
                   onClick={() => setForm({ ...form, engineType: e.value })}
                   className={`text-left p-4 rounded-lg border transition-colors ${
                     form.engineType === e.value
-                      ? 'border-radix-500 bg-radix-500/10 neon-glow'
+                      ? 'border-violet-500 bg-violet-500/10'
                       : 'border-white/10 bg-white/5 hover:border-white/20'
                   }`}
                 >

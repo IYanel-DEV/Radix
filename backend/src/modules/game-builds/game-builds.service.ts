@@ -219,6 +219,20 @@ export class GameBuildsService {
     };
   }
 
+  async getBuildStream(id: string): Promise<{ fileStream: fs.ReadStream; fileName: string; size: number }> {
+    const build = await this.buildRepository.findOne({ where: { id } });
+    if (!build) throw new NotFoundException('Build not found');
+    if (!fs.existsSync(build.filePath)) {
+      throw new NotFoundException('Build file not found on disk');
+    }
+    const stat = fs.statSync(build.filePath);
+    return {
+      fileStream: fs.createReadStream(build.filePath),
+      fileName: build.fileName,
+      size: stat.size,
+    };
+  }
+
   private extractVersionFromFileName(fileName: string): string | null {
     const versionMatch = fileName.match(/(\d+\.\d+\.\d+(?:\.\d+)?)/);
     return versionMatch ? versionMatch[1] : null;

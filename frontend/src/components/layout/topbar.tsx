@@ -26,34 +26,30 @@ export function Topbar({ onMenuClick }: TopbarProps) {
   const unreadCount = useNotificationStore((s) => s.unreadCount);
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-white/5 bg-[#0B0A0F]/80 backdrop-blur-xl px-4 lg:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 bg-zinc-950/95 border-b border-zinc-800 px-4 lg:px-6">
       <button
         onClick={onMenuClick}
-        className="flex lg:hidden h-9 w-9 items-center justify-center rounded-lg text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-colors"
+        className="flex lg:hidden h-9 w-9 items-center justify-center rounded-lg text-slate-400 hover:bg-white/[0.06] hover:text-slate-200 transition-all duration-200"
       >
         <Menu className="h-5 w-5" />
       </button>
 
-      <div className="hidden sm:flex relative flex-1 max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+      <div className="hidden sm:flex relative flex-1 max-w-md group">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500 transition-colors duration-150 group-focus-within:text-violet-400" />
         <input
           type="text"
           placeholder="Search servers, players..."
-          className={cn(
-            'h-9 w-full rounded-lg border border-white/10 bg-white/5 pl-9 pr-4 text-sm text-slate-100 placeholder:text-slate-500',
-            'focus:outline-none focus:ring-2 focus:ring-radix-500/50 focus:border-radix-500/50',
-            'transition-all duration-200'
-          )}
+          className="h-9 w-full rounded-lg border border-zinc-800 bg-zinc-900 pl-9 pr-4 text-sm text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20"
         />
       </div>
 
       <div className="flex items-center gap-2 ml-auto">
         <Popover>
           <PopoverTrigger asChild>
-            <button className="relative h-9 w-9 flex items-center justify-center rounded-lg text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-colors">
+            <button className="relative h-9 w-9 flex items-center justify-center rounded-lg text-slate-400 hover:bg-white/[0.06] hover:text-slate-200 transition-all duration-200">
               <Bell className="h-5 w-5" />
               {unreadCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-radix-500 px-1 text-[10px] font-bold text-white">
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
               )}
@@ -62,7 +58,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
           <PopoverContent
             align="end"
             sideOffset={8}
-            className="w-80 p-0 border-white/10 bg-[#0B0A0F]"
+            className="w-80 p-0 border-white/[0.06] bg-[#0D0C14]/95 backdrop-blur-2xl"
           >
             <NotificationDropdown />
           </PopoverContent>
@@ -70,9 +66,9 @@ export function Topbar({ onMenuClick }: TopbarProps) {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-2 rounded-lg p-1.5 hover:bg-white/5 transition-colors">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-radix-600/20 text-xs text-radix-400">
+            <button className="flex items-center gap-2 rounded-lg p-1.5 hover:bg-white/[0.04] transition-all duration-200">
+              <Avatar className="h-8 w-8 ring-2 ring-white/[0.04]">
+                <AvatarFallback className="bg-radix-500/15 text-xs text-radix-400">
                   {user?.username?.charAt(0).toUpperCase() || 'U'}
                 </AvatarFallback>
               </Avatar>

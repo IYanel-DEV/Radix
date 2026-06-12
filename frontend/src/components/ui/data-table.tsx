@@ -73,11 +73,11 @@ export function DataTable<T extends Record<string, any>>({
   };
 
   const SortIcon = ({ columnKey }: { columnKey: string }) => {
-    if (sortConfig?.key !== columnKey) return <ChevronsUpDown className="h-3 w-3 ml-1 text-slate-600" />;
+    if (sortConfig?.key !== columnKey) return <ChevronsUpDown className="h-3 w-3 ml-1 text-zinc-600" />;
     return sortConfig.direction === 'asc' ? (
-      <ChevronUp className="h-3 w-3 ml-1 text-radix-400" />
+      <ChevronUp className="h-3 w-3 ml-1 text-violet-400" />
     ) : (
-      <ChevronDown className="h-3 w-3 ml-1 text-radix-400" />
+      <ChevronDown className="h-3 w-3 ml-1 text-violet-400" />
     );
   };
 
@@ -96,7 +96,7 @@ export function DataTable<T extends Record<string, any>>({
             <TableRow key={`skeleton-${i}`}>
               {columns.map((col) => (
                 <TableCell key={col.key}>
-                  <div className="h-4 w-24 animate-pulse rounded bg-slate-800" />
+                  <div className="h-4 w-24 animate-pulse rounded bg-zinc-800" />
                 </TableCell>
               ))}
             </TableRow>
@@ -132,7 +132,7 @@ export function DataTable<T extends Record<string, any>>({
           <AnimatePresence mode="popLayout">
             {sortedData.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={columns.length} className="text-center py-12 text-slate-500">
+                <TableCell colSpan={columns.length} className="text-center py-12 text-zinc-500">
                   {emptyMessage}
                 </TableCell>
               </TableRow>
@@ -145,7 +145,6 @@ export function DataTable<T extends Record<string, any>>({
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.2, delay: index * 0.03 }}
                   className={cn(
-                    'border-b border-white/5 transition-colors hover:bg-white/5',
                     onRowClick && 'cursor-pointer'
                   )}
                   onClick={() => onRowClick?.(item)}

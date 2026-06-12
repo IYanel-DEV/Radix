@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { Controller, Get, Post, Put, Delete, Body, Param, Headers, UnauthorizedException, UseGuards, ValidationPipe } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiHeader } from '@nestjs/swagger';
 import { LiveTuningService } from './live-tuning.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -8,7 +8,7 @@ import { Public } from '../../common/decorators/public.decorator';
 import { TuningType } from '../../database/entities/live-tuning.entity';
 
 @ApiTags('Live Tuning')
-@Controller('api/v1/tuning')
+@Controller('v1/tuning')
 export class LiveTuningController {
   constructor(private readonly tuningService: LiveTuningService) {}
 
@@ -67,8 +67,12 @@ export class LiveTuningController {
 
   @Get('public/all')
   @Public()
-  @ApiOperation({ summary: 'Get all active tuning variables (public)' })
-  async getPublicTuning() {
+  @ApiOperation({ summary: 'Get all active tuning variables (public - requires public key)' })
+  @ApiHeader({ name: 'x-radix-public-key', required: true, description: 'Game public key' })
+  async getPublicTuning(@Headers('x-radix-public-key') publicKey: string) {
+    if (!publicKey) {
+      throw new UnauthorizedException('x-radix-public-key header is required');
+    }
     const tuning = await this.tuningService.getPublicTuning();
     return tuning;
   }

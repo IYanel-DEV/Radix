@@ -54,7 +54,7 @@ export default function LoginPage() {
       className="rounded-xl border border-white/5 bg-[#0B0A0F]/80 backdrop-blur-xl p-8 shadow-2xl"
     >
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-white neon-text">Welcome back</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-zinc-50">Welcome back</h2>
         <p className="text-sm text-slate-400 mt-1">Sign in to manage your servers</p>
       </div>
 

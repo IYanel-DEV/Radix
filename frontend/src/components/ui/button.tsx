@@ -1,25 +1,33 @@
+'use client';
+
 import * as React from 'react';
 import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-radix-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0A0F] disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]',
+  'inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.97]',
   {
     variants: {
       variant: {
-        default: 'bg-radix-600 text-white hover:bg-radix-500 shadow-lg shadow-radix-500/20',
-        destructive: 'bg-red-500 text-white hover:bg-red-600 shadow-lg shadow-red-500/20',
-        outline: 'border border-white/10 bg-transparent text-slate-300 hover:bg-white/5 hover:text-slate-100',
-        secondary: 'bg-white/5 text-slate-300 hover:bg-white/10 hover:text-slate-100',
-        ghost: 'text-slate-400 hover:bg-white/5 hover:text-slate-100',
-        link: 'text-radix-400 underline-offset-4 hover:underline',
+        default:
+          'bg-violet-600 text-white hover:bg-violet-500',
+        destructive:
+          'bg-red-600 text-white hover:bg-red-500',
+        outline:
+          'border border-zinc-800 bg-transparent text-zinc-300 hover:bg-zinc-800/50 hover:text-zinc-100',
+        secondary:
+          'bg-zinc-800/50 text-zinc-300 hover:bg-zinc-700/50 hover:text-zinc-100',
+        ghost:
+          'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50',
+        link:
+          'text-violet-400 underline-offset-4 hover:underline hover:text-violet-300',
       },
       size: {
-        default: 'h-10 px-4 py-2',
-        sm: 'h-9 rounded-md px-3 text-xs',
-        lg: 'h-12 rounded-lg px-8 text-base',
-        icon: 'h-10 w-10',
+        default: 'h-9 px-4 py-2',
+        sm: 'h-8 rounded-md px-3 text-xs',
+        lg: 'h-10 rounded-lg px-6 text-base',
+        icon: 'h-9 w-9',
       },
     },
     defaultVariants: {

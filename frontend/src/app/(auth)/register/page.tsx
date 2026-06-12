@@ -57,7 +57,7 @@ export default function RegisterPage() {
       className="rounded-xl border border-white/5 bg-[#0B0A0F]/80 backdrop-blur-xl p-8 shadow-2xl"
     >
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-white neon-text">Create account</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-zinc-50">Create account</h2>
         <p className="text-sm text-slate-400 mt-1">Get started with ServerPanel</p>
       </div>
 
